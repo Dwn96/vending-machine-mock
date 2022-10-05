@@ -2,11 +2,11 @@ import { Injectable } from '@nestjs/common';
 import MockItemStore from './data/Item.data';
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
-
+import { v4 as uuid } from 'uuid';
 @Injectable()
 export class ItemsService {
   create(createItemDto: CreateItemDto) {
-    MockItemStore.push(createItemDto);
+    MockItemStore.push({ id: uuid(), ...createItemDto });
     return MockItemStore;
   }
 
