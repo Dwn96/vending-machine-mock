@@ -6,7 +6,8 @@ import { UpdateItemDto } from './dto/update-item.dto';
 @Injectable()
 export class ItemsService {
   create(createItemDto: CreateItemDto) {
-    return MockItemStore.push(createItemDto);
+    MockItemStore.push(createItemDto);
+    return MockItemStore;
   }
 
   findAll() {

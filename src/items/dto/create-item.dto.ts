@@ -1,6 +1,15 @@
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+
 export class CreateItemDto {
-  public id: string;
+  @IsNotEmpty()
+  @IsString()
   public name: string;
+
+  @IsNumber()
+  @IsNotEmpty()
   public unitPrice: number;
+
+  @IsNumber()
+  @IsNotEmpty()
   public quantity: number;
 }
