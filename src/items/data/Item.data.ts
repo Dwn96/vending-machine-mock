@@ -3,7 +3,7 @@ import { Item } from '../entity/item.entity';
 
 const MockItemStore: Item[] = [
   {
-    id: uuid(),
+    id: '1',
     name: 'Soda Pop',
     quantity: 100,
     unitPrice: 50,

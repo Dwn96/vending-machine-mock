@@ -1,58 +1,58 @@
 import { v4 as uuid } from 'uuid';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import MockPaymentStore from './data/MockPaymentStore';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
-import MockItemStore from 'src/items/data/Item.data';
+import MockItemsSlots from 'src/slots/data/slot.data';
+import PaymentResponse from './dto/payment-res.dto';
+import { ItemsService } from 'src/items/items.service';
 
 @Injectable()
 export class PaymentsService {
-  create(createPaymentDto: CreatePaymentDto) {
-    const item = MockItemStore.find(
-      (item) => item.id === createPaymentDto.itemId,
+  constructor(private itemsService: ItemsService) {}
+  create(createPaymentDto: CreatePaymentDto): PaymentResponse {
+    const slot = MockItemsSlots.find(
+      (slot) => slot.id === createPaymentDto.slotId,
     );
-    if (!item) {
+    if (!slot) {
       throw new NotFoundException(
-        `Item with id: ${createPaymentDto.itemId} couldn't be found`,
+        `Slot with id: ${createPaymentDto.slotId} couldn't be found`,
       );
     }
+    if (slot.items.quantity < 1) {
+      throw new BadRequestException(`Slot id: ${slot.id} is currently empty`);
+    }
+    const { items } = slot;
+    const paidAmount = this.computeTotalPaidAmount(createPaymentDto);
+    MockPaymentStore.push({ id: uuid(), amount: paidAmount, slotId: slot.id });
 
-    if (createPaymentDto.amount > item.unitPrice) {
-      const res = {
-        id: uuid(),
-        ...createPaymentDto,
-        topUpAmount: 0,
+    if (paidAmount > items.unitPrice) {
+      this.itemsService.decrementItemInSlot(slot.id);
+      return {
+        remainingAmount: 0,
         paymentComplete: true,
-        change: createPaymentDto.amount - item.unitPrice,
+        change: paidAmount - items.unitPrice,
       };
-      return res;
     }
 
-    MockPaymentStore.push({ id: uuid(), ...createPaymentDto });
+    const totalPayments = this.getPaymentsByItemId(slot.id);
 
-    const totalPayments = this.getPaymentsByItemId(createPaymentDto.itemId);
-
-    if (totalPayments > item.unitPrice || totalPayments === item.unitPrice) {
-      const change = totalPayments - item.unitPrice;
-      const res = {
-        id: uuid(),
-        ...createPaymentDto,
-        topUpAmount: 0,
+    if (totalPayments > items.unitPrice || totalPayments === items.unitPrice) {
+      const change = totalPayments - items.unitPrice;
+      return {
+        remainingAmount: 0,
         paymentComplete: true,
-        change: undefined,
+        change,
       };
-
-      if (change > 0) {
-        res.change = change;
-      }
-      return res;
     }
 
     return {
-      id: uuid(),
-      ...createPaymentDto,
       paymentComplete: false,
-      topUpAmount: item.unitPrice - totalPayments,
+      remainingAmount: items.unitPrice - totalPayments,
     };
   }
 
@@ -72,11 +72,41 @@ export class PaymentsService {
     return `This action removes a #${id} payment`;
   }
 
-  getPaymentsByItemId(itemId: string) {
+  getPaymentsByItemId(slotId: number) {
     return MockPaymentStore.filter(
-      (payment) => payment.itemId === itemId,
+      (payment) => payment.slotId === slotId,
     ).reduce((acc, pmt) => {
       return (acc += pmt.amount);
     }, 0);
+  }
+
+  computeTotalPaidAmount(payment: CreatePaymentDto): number {
+    let amount = 0;
+
+    if (payment.dollarCount > 0) {
+      amount += payment.dollarCount * 100;
+    }
+
+    if (payment.halfDollarCount > 0) {
+      amount += payment.halfDollarCount * 50;
+    }
+
+    if (payment.quarterCount > 0) {
+      amount += payment.quarterCount * 25;
+    }
+
+    if (payment.dimeCount > 0) {
+      amount += payment.dimeCount * 10;
+    }
+
+    if (payment.nickelCount > 0) {
+      amount += payment.nickelCount * 5;
+    }
+
+    if (payment.pennyCount > 0) {
+      amount += payment.pennyCount;
+    }
+
+    return amount / 100;
   }
 }

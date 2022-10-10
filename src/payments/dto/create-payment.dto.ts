@@ -1,10 +1,31 @@
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreatePaymentDto {
-  @IsNumber()
-  @IsNotEmpty()
-  public amount: number;
   @IsNotEmpty()
   @IsString()
-  public itemId: string;
+  public slotId: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  public dollarCount: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  public halfDollarCount: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  public quarterCount: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  public dimeCount: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  public nickelCount: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  public pennyCount: number;
 }

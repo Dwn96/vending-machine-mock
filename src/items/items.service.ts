@@ -3,13 +3,22 @@ import MockItemStore from './data/Item.data';
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
 import { v4 as uuid } from 'uuid';
+import MockItemsSlots from 'src/slots/data/slot.data';
 @Injectable()
 export class ItemsService {
   create(createItemDto: CreateItemDto) {
-    MockItemStore.push({ id: uuid(), ...createItemDto });
-    return MockItemStore;
+    const slot = MockItemsSlots.find(
+      (slot) => slot.items.name === createItemDto.name,
+    );
+    if (slot) {
+      slot.items.quantity = slot.items.quantity + 1;
+      return;
+    }
+    MockItemsSlots.push({
+      id: MockItemStore.length + 1,
+      items: { id: uuid(), ...createItemDto },
+    });
   }
-
   findAll() {
     return MockItemStore;
   }
@@ -33,5 +42,12 @@ export class ItemsService {
     MockItemStore.length = 0;
     MockItemStore.push(...remainingItems);
     return MockItemStore;
+  }
+
+  decrementItemInSlot(slotId: number) {
+    const slot = MockItemsSlots.find((slot) => slot.id === slotId);
+    if (!slot) return;
+    slot.items.quantity = slot.items.quantity -= 1;
+    return slot.items.quantity;
   }
 }

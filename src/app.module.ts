@@ -5,9 +5,10 @@ import { ItemsModule } from './items/items.module';
 import { MaintainersModule } from './maintainers/maintainers.module';
 import { PaymentsModule } from './payments/payments.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { SlotsModule } from './slots/slots.module';
 
 @Module({
-  imports: [ItemsModule, MaintainersModule, PaymentsModule, AnalyticsModule],
+  imports: [ItemsModule, MaintainersModule, PaymentsModule, AnalyticsModule, SlotsModule],
   controllers: [AppController],
   providers: [AppService],
 })
