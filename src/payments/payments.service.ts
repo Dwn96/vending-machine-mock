@@ -28,7 +28,7 @@ export class PaymentsService {
         `Slot with id: ${createPaymentDto.slotId} couldn't be found`,
       );
     }
-    if (slot.items.quantity < 1) {
+    if (slot.quantity < 1) {
       throw new BadRequestException(`Slot id: ${slot.id} is currently empty`);
     }
     const unitPrice = slot.unitPrice;

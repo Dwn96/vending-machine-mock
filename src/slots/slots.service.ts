@@ -1,9 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { AppConfigService } from 'src/config/config.service';
 import MockItemsSlots from './data/slot.data';
 import { UpdateSlotDto } from './dto/update-slot.dto';
 
 @Injectable()
 export class SlotsService {
+  constructor(private configService: AppConfigService) {}
   findAll() {
     return MockItemsSlots;
   }
@@ -16,7 +22,17 @@ export class SlotsService {
 
   update(id: number, updateSlotDto: UpdateSlotDto) {
     const slot = this.findOne(id);
-    slot.unitPrice = updateSlotDto.unitPrice;
+    if (updateSlotDto.unitPrice > 0) {
+      slot.unitPrice = updateSlotDto.unitPrice;
+    }
+    if (updateSlotDto.quantity !== undefined) {
+      if (updateSlotDto.quantity > this.configService.MAX_ITEMS_PER_SLOT) {
+        throw new BadRequestException(
+          `Quantity ${updateSlotDto.quantity} exceeded maximum allowed quantity per slot ${this.configService.MAX_ITEMS_PER_SLOT}`,
+        );
+      }
+      slot.quantity = updateSlotDto.quantity;
+    }
     return slot;
   }
 

@@ -1,6 +1,10 @@
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { IsNumber, IsOptional } from 'class-validator';
 export class UpdateSlotDto {
   @IsNumber()
-  @IsNotEmpty()
-  public unitPrice: number;
+  @IsOptional()
+  public unitPrice?: number;
+
+  @IsNumber()
+  @IsOptional()
+  public quantity?: number;
 }

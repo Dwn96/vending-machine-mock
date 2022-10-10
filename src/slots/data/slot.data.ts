@@ -5,28 +5,28 @@ const MockItemsSlots: Slot[] = [
   {
     id: 1,
     unitPrice: 50,
-    items: {
+    quantity: 12,
+    item: {
       id: uuid(),
       name: 'Soda Pop',
-      quantity: 12,
     },
   },
   {
     id: 2,
     unitPrice: 5,
-    items: {
+    quantity: 14,
+    item: {
       id: uuid(),
       name: 'Tums',
-      quantity: 12,
     },
   },
   {
     id: 3,
     unitPrice: 75,
-    items: {
+    quantity: 9,
+    item: {
       id: uuid(),
       name: 'Probiotic Yoghurt',
-      quantity: 12,
     },
   },
 ];

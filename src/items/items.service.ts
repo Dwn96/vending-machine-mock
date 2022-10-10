@@ -8,16 +8,17 @@ import MockItemsSlots from 'src/slots/data/slot.data';
 export class ItemsService {
   create(createItemDto: CreateItemDto) {
     const slot = MockItemsSlots.find(
-      (slot) => slot.items.name === createItemDto.name,
+      (slot) => slot.item.name === createItemDto.name,
     );
     if (slot) {
-      slot.items.quantity = slot.items.quantity + 1;
+      slot.quantity = slot.quantity + 1;
       return;
     }
     MockItemsSlots.push({
       id: MockItemStore.length + 1,
       unitPrice: createItemDto.unitPrice,
-      items: { id: uuid(), ...createItemDto },
+      quantity: createItemDto.quantity,
+      item: { id: uuid(), ...createItemDto },
     });
   }
   findAll() {
@@ -48,7 +49,7 @@ export class ItemsService {
   decrementItemInSlot(slotId: number) {
     const slot = MockItemsSlots.find((slot) => slot.id === slotId);
     if (!slot) return;
-    slot.items.quantity = slot.items.quantity -= 1;
-    return slot.items.quantity;
+    slot.quantity = slot.quantity -= 1;
+    return slot.quantity;
   }
 }
