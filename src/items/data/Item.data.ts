@@ -6,25 +6,21 @@ const MockItemStore: Item[] = [
     id: '1',
     name: 'Soda Pop',
     quantity: 100,
-    unitPrice: 50,
   },
   {
     id: uuid(),
     name: 'Cookies',
     quantity: 50,
-    unitPrice: 5,
   },
   {
     id: uuid(),
     name: 'Krackles',
     quantity: 100,
-    unitPrice: 50,
   },
   {
     id: uuid(),
     name: 'Vegetable Aite',
     quantity: 10,
-    unitPrice: 5,
   },
 ];
 

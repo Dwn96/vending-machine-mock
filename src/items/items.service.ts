@@ -16,6 +16,7 @@ export class ItemsService {
     }
     MockItemsSlots.push({
       id: MockItemStore.length + 1,
+      unitPrice: createItemDto.unitPrice,
       items: { id: uuid(), ...createItemDto },
     });
   }

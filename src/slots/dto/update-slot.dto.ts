@@ -1,4 +1,6 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateSlotDto } from './create-slot.dto';
-
-export class UpdateSlotDto extends PartialType(CreateSlotDto) {}
+import { IsNotEmpty, IsNumber } from 'class-validator';
+export class UpdateSlotDto {
+  @IsNumber()
+  @IsNotEmpty()
+  public unitPrice: number;
+}

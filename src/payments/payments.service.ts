@@ -31,7 +31,7 @@ export class PaymentsService {
     if (slot.items.quantity < 1) {
       throw new BadRequestException(`Slot id: ${slot.id} is currently empty`);
     }
-    const { items } = slot;
+    const unitPrice = slot.unitPrice;
     const { amount, valid, invalidDenominations } =
       this.computeAndValidatePayment(createPaymentDto);
     if (!valid) {
@@ -43,19 +43,20 @@ export class PaymentsService {
     }
     MockPaymentStore.push({ id: uuid(), amount, slotId: slot.id });
 
-    if (amount > items.unitPrice) {
+    if (amount > unitPrice) {
       this.itemsService.decrementItemInSlot(slot.id);
       return {
         remainingAmount: 0,
         paymentComplete: true,
-        change: amount - items.unitPrice,
+        change: amount - unitPrice,
       };
     }
 
     const totalPayments = this.getPaymentsByItemId(slot.id);
 
-    if (totalPayments > items.unitPrice || totalPayments === items.unitPrice) {
-      const change = totalPayments - items.unitPrice;
+    if (totalPayments > unitPrice || totalPayments === unitPrice) {
+      this.itemsService.decrementItemInSlot(slot.id);
+      const change = totalPayments - slot.unitPrice;
       return {
         remainingAmount: 0,
         paymentComplete: true,
@@ -65,7 +66,7 @@ export class PaymentsService {
 
     return {
       paymentComplete: false,
-      remainingAmount: items.unitPrice - totalPayments,
+      remainingAmount: unitPrice - totalPayments,
     };
   }
 

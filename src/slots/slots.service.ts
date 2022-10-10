@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import MockItemsSlots from './data/slot.data';
-import { CreateSlotDto } from './dto/create-slot.dto';
 import { UpdateSlotDto } from './dto/update-slot.dto';
 
 @Injectable()
@@ -16,7 +15,9 @@ export class SlotsService {
   }
 
   update(id: number, updateSlotDto: UpdateSlotDto) {
-    return `This action updates a #${id} slot`;
+    const slot = this.findOne(id);
+    slot.unitPrice = updateSlotDto.unitPrice;
+    return slot;
   }
 
   remove(id: number) {
