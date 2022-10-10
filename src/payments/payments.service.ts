@@ -10,10 +10,15 @@ import { UpdatePaymentDto } from './dto/update-payment.dto';
 import MockItemsSlots from 'src/slots/data/slot.data';
 import PaymentResponse from './dto/payment-res.dto';
 import { ItemsService } from 'src/items/items.service';
+import Denomination from './entities/Denominations';
+import { AppConfigService } from 'src/config/config.service';
 
 @Injectable()
 export class PaymentsService {
-  constructor(private itemsService: ItemsService) {}
+  constructor(
+    private itemsService: ItemsService,
+    private configService: AppConfigService,
+  ) {}
   create(createPaymentDto: CreatePaymentDto): PaymentResponse {
     const slot = MockItemsSlots.find(
       (slot) => slot.id === createPaymentDto.slotId,
@@ -27,15 +32,23 @@ export class PaymentsService {
       throw new BadRequestException(`Slot id: ${slot.id} is currently empty`);
     }
     const { items } = slot;
-    const paidAmount = this.computeTotalPaidAmount(createPaymentDto);
-    MockPaymentStore.push({ id: uuid(), amount: paidAmount, slotId: slot.id });
+    const { amount, valid, invalidDenominations } =
+      this.computeAndValidatePayment(createPaymentDto);
+    if (!valid) {
+      throw new BadRequestException(
+        `Your payment could not be accepted because the system does not permit the following denominations: ${invalidDenominations.join(
+          ',',
+        )}`,
+      );
+    }
+    MockPaymentStore.push({ id: uuid(), amount, slotId: slot.id });
 
-    if (paidAmount > items.unitPrice) {
+    if (amount > items.unitPrice) {
       this.itemsService.decrementItemInSlot(slot.id);
       return {
         remainingAmount: 0,
         paymentComplete: true,
-        change: paidAmount - items.unitPrice,
+        change: amount - items.unitPrice,
       };
     }
 
@@ -80,33 +93,77 @@ export class PaymentsService {
     }, 0);
   }
 
-  computeTotalPaidAmount(payment: CreatePaymentDto): number {
+  computeAndValidatePayment(payment: CreatePaymentDto): {
+    amount: number;
+    valid: boolean;
+    invalidDenominations: string[];
+  } {
     let amount = 0;
+    let valid = true;
+    let invalidDenominations = [];
 
     if (payment.dollarCount > 0) {
+      const res = this.validatePayment(Denomination.Dollar);
+      valid = res.valid;
+      invalidDenominations = res.invalidDenominations;
       amount += payment.dollarCount * 100;
     }
 
     if (payment.halfDollarCount > 0) {
+      const res = this.validatePayment(Denomination.HalfDollar);
+      valid = res.valid;
+      invalidDenominations = res.invalidDenominations;
       amount += payment.halfDollarCount * 50;
     }
 
     if (payment.quarterCount > 0) {
+      const res = this.validatePayment(Denomination.Quarter);
+      valid = res.valid;
+      invalidDenominations = res.invalidDenominations;
       amount += payment.quarterCount * 25;
     }
 
     if (payment.dimeCount > 0) {
+      const res = this.validatePayment(Denomination.Dime);
+      valid = res.valid;
+      invalidDenominations = res.invalidDenominations;
       amount += payment.dimeCount * 10;
     }
 
     if (payment.nickelCount > 0) {
+      const res = this.validatePayment(Denomination.Nickel);
+      valid = res.valid;
+      invalidDenominations = res.invalidDenominations;
       amount += payment.nickelCount * 5;
     }
 
     if (payment.pennyCount > 0) {
+      const res = this.validatePayment(Denomination.Penny);
+      valid = res.valid;
+      invalidDenominations = res.invalidDenominations;
       amount += payment.pennyCount;
     }
 
-    return amount / 100;
+    return {
+      amount: amount / 100,
+      valid,
+      invalidDenominations,
+    };
+  }
+
+  validatePayment(context: string) {
+    const acceptedDenominations = this.configService.ALLOWED_DENOMINATIONS;
+    const invalidDenominations: string[] = [];
+    const valid = acceptedDenominations.some(
+      (denomination) => denomination.toUpperCase() === context,
+    );
+
+    if (!valid) {
+      invalidDenominations.push(context);
+    }
+    return {
+      valid,
+      invalidDenominations,
+    };
   }
 }
