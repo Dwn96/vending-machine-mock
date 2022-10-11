@@ -12,12 +12,15 @@ import PaymentResponse from './dto/payment-res.dto';
 import { ItemsService } from 'src/items/items.service';
 import Denomination from './entities/Denominations';
 import { AppConfigService } from 'src/config/config.service';
+import { CoinsService } from 'src/coins/coins.service';
+import * as _ from 'lodash';
 
 @Injectable()
 export class PaymentsService {
   constructor(
     private itemsService: ItemsService,
     private configService: AppConfigService,
+    private coinService: CoinsService,
   ) {}
   create(createPaymentDto: CreatePaymentDto): PaymentResponse {
     const slot = MockItemsSlots.find(
@@ -106,42 +109,54 @@ export class PaymentsService {
     let invalidDenominations = [];
 
     if (payment.dollarCount > 0) {
-      const res = this.validatePayment(Denomination.Dollar);
+      const res = this.validatePayment(
+        Denomination.Dollar,
+        payment.dollarCount,
+      );
       valid = res.valid;
       invalidDenominations = res.invalidDenominations;
       amount += payment.dollarCount * 100;
     }
 
     if (payment.halfDollarCount > 0) {
-      const res = this.validatePayment(Denomination.HalfDollar);
+      const res = this.validatePayment(
+        Denomination.HalfDollar,
+        payment.halfDollarCount,
+      );
       valid = res.valid;
       invalidDenominations = res.invalidDenominations;
       amount += payment.halfDollarCount * 50;
     }
 
     if (payment.quarterCount > 0) {
-      const res = this.validatePayment(Denomination.Quarter);
+      const res = this.validatePayment(
+        Denomination.Quarter,
+        payment.quarterCount,
+      );
       valid = res.valid;
       invalidDenominations = res.invalidDenominations;
       amount += payment.quarterCount * 25;
     }
 
     if (payment.dimeCount > 0) {
-      const res = this.validatePayment(Denomination.Dime);
+      const res = this.validatePayment(Denomination.Dime, payment.dimeCount);
       valid = res.valid;
       invalidDenominations = res.invalidDenominations;
       amount += payment.dimeCount * 10;
     }
 
     if (payment.nickelCount > 0) {
-      const res = this.validatePayment(Denomination.Nickel);
+      const res = this.validatePayment(
+        Denomination.Nickel,
+        payment.nickelCount,
+      );
       valid = res.valid;
       invalidDenominations = res.invalidDenominations;
       amount += payment.nickelCount * 5;
     }
 
     if (payment.pennyCount > 0) {
-      const res = this.validatePayment(Denomination.Penny);
+      const res = this.validatePayment(Denomination.Penny, payment.pennyCount);
       valid = res.valid;
       invalidDenominations = res.invalidDenominations;
       amount += payment.pennyCount;
@@ -154,7 +169,8 @@ export class PaymentsService {
     };
   }
 
-  validatePayment(context: string) {
+  validatePayment(context: string, value: number) {
+    this.coinService.incrementCoinStore(_.camelCase(context) as any, value);
     const acceptedDenominations = this.configService.ALLOWED_DENOMINATIONS;
     const invalidDenominations: string[] = [];
     const valid = acceptedDenominations.some(
