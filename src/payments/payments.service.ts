@@ -45,6 +45,7 @@ export class PaymentsService {
 
     if (amount > unitPrice) {
       this.itemsService.decrementItemInSlot(slot.id);
+      MockPaymentStore.length = 0;
       return {
         remainingAmount: 0,
         paymentComplete: true,
@@ -56,6 +57,7 @@ export class PaymentsService {
 
     if (totalPayments > unitPrice || totalPayments === unitPrice) {
       this.itemsService.decrementItemInSlot(slot.id);
+      MockPaymentStore.length = 0;
       const change = totalPayments - slot.unitPrice;
       return {
         remainingAmount: 0,

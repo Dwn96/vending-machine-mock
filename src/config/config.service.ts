@@ -14,6 +14,7 @@ export class AppConfigService {
   }
 
   get ALLOWED_DENOMINATIONS(): string[] {
-    return this.configService.get<string>('ALLOWED_DENOMINATIONS').split(',');
+    const allowed = this.configService.get<string>('ALLOWED_DENOMS').split(',');
+    return allowed;
   }
 }
