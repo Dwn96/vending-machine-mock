@@ -49,3 +49,14 @@
             "pennyCount": 2
             
         }
+        
+6. Make purchases via POST /payments with a slotId and optional denominational amounts:
+
+        {
+            "dollarCount": 1000,
+             "dimeCount": 34,
+            "nickelCount": 4,
+            "pennyCount": 2
+            "slotId": 3
+        }
+
