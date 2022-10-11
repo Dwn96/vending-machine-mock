@@ -1,10 +1,8 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ItemsModule } from './items/items.module';
 import { MaintainersModule } from './maintainers/maintainers.module';
 import { PaymentsModule } from './payments/payments.module';
-import { AnalyticsModule } from './analytics/analytics.module';
 import { SlotsModule } from './slots/slots.module';
 import { ConfigModule } from '@nestjs/config';
 import { CoinsModule } from './coins/coins.module';
@@ -35,10 +33,8 @@ import Denomination from './payments/entities/Denominations';
         }),
       }),
     }),
-    ItemsModule,
     MaintainersModule,
     PaymentsModule,
-    AnalyticsModule,
     SlotsModule,
     CoinsModule,
   ],

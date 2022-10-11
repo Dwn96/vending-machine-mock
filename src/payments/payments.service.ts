@@ -9,18 +9,18 @@ import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import MockItemsSlots from 'src/slots/data/slot.data';
 import PaymentResponse from './dto/payment-res.dto';
-import { ItemsService } from 'src/items/items.service';
 import Denomination from './entities/Denominations';
 import { AppConfigService } from 'src/config/config.service';
 import { CoinsService } from 'src/coins/coins.service';
 import * as _ from 'lodash';
+import { SlotsService } from 'src/slots/slots.service';
 
 @Injectable()
 export class PaymentsService {
   constructor(
-    private itemsService: ItemsService,
     private configService: AppConfigService,
     private coinService: CoinsService,
+    private slotService: SlotsService,
   ) {}
   create(createPaymentDto: CreatePaymentDto): PaymentResponse {
     const slot = MockItemsSlots.find(
@@ -47,7 +47,7 @@ export class PaymentsService {
     MockPaymentStore.push({ id: uuid(), amount, slotId: slot.id });
 
     if (amount > unitPrice) {
-      this.itemsService.decrementItemInSlot(slot.id);
+      this.slotService.decrementItemInSlot(slot.id);
       MockPaymentStore.length = 0;
       return {
         remainingAmount: 0,
@@ -59,7 +59,7 @@ export class PaymentsService {
     const totalPayments = this.getPaymentsByItemId(slot.id);
 
     if (totalPayments > unitPrice || totalPayments === unitPrice) {
-      this.itemsService.decrementItemInSlot(slot.id);
+      this.slotService.decrementItemInSlot(slot.id);
       MockPaymentStore.length = 0;
       const change = totalPayments - slot.unitPrice;
       return {

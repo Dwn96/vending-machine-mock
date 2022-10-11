@@ -39,4 +39,11 @@ export class SlotsService {
   remove(id: number) {
     return `This action removes a #${id} slot`;
   }
+
+  decrementItemInSlot(slotId: number) {
+    const slot = MockItemsSlots.find((slot) => slot.id === slotId);
+    if (!slot) return;
+    slot.quantity = slot.quantity -= 1;
+    return slot.quantity;
+  }
 }
