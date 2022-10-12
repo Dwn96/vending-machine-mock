@@ -6,6 +6,7 @@ import { PaymentsModule } from './payments/payments.module';
 import { SlotsModule } from './slots/slots.module';
 import { ConfigModule } from '@nestjs/config';
 import { CoinsModule } from './coins/coins.module';
+import { ItemsModule } from './items/items.module';
 import * as Joi from 'joi';
 import Denomination from './payments/entities/Denominations';
 @Module({
@@ -37,6 +38,7 @@ import Denomination from './payments/entities/Denominations';
     PaymentsModule,
     SlotsModule,
     CoinsModule,
+    ItemsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
